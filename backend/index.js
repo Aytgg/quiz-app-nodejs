@@ -8,6 +8,8 @@ require("dotenv").config();
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 
+const initializeSocket = require("./socket");
+
 const app = express();
 //app.use(cors({ origin: "https://localhost:3000" }));
 //app.use(require("passport").initialize());
@@ -22,22 +24,7 @@ const io = new Server(server, {
   cors: { origin: "*" },
 });
 
-io.on("connection", (socket) => {
-  console.log("New connection:", socket.id);
-
-  socket.on("join-room", ({ roomCode, username }) => {
-    socket.join(roomCode);
-    console.log(username, roomCode, "odasına katıldı.");
-
-    socket.to(roomCode).emit("user-joined", { username });
-  });
-  socket.on("submit-answer", (data) => {
-    io.to(data.roomCode).emit("answer-submitted", data);
-  });
-  socket.on("disconnect", () => {
-    console.log("Disconnected", socket.id);
-  });
-});
+initializeSocket(io);
 
 sequelize.sync({ alter: true }).then(() => {
   server.listen(process.env.PORT, () => {

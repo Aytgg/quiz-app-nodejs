@@ -11,7 +11,7 @@ const QuizHistory = sequelize.define("QuizHistory", {
     defaultValue: DataTypes.NOW,
   },
   results: {
-    type: DataTypes.JSON,
+    type: DataTypes.JSON, // [{ username, score }]
     allowNull: true,
   },
 });

@@ -1,0 +1,8 @@
+# SQLite file
+quiz.db
+
+# Config file
+.env
+
+# others
+.DS_Store
