@@ -1,41 +1,53 @@
-import {
-  type RouteConfig,
-  index,
-  route,
-  /*layout,*/
-  /*prefix,*/
-} from "@react-router/dev/routes";
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import api from '../../services/api';
 
-export default [
-  index("routes/home.tsx"),
-  route("login", "routes/auth/login.tsx"),
-  route("register", "routes/auth/register.tsx"),
-  // route("room/:roomId", "routes/waiting-in-room.tsx"),
-] satisfies RouteConfig;
+export default function Login() {
+  const [form, setForm] = useState({ username: '', password: '' });
+  const navigate = useNavigate();
 
-/*[
-  index("./home.tsx"),
-  route("about", "./about.tsx"),
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-  layout("./auth/layout.tsx", [
-    route("login", "./auth/login.tsx"),
-    route("register", "./auth/register.tsx"),
-  ]),
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await api.post('/auth/login', form);
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('username', res.data.username);
+      navigate('/');
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Giriş başarısız');
+    }
+  };
 
-	route("teams/:teamId", "./team.tsx"),
+  return (
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-sm space-y-4">
+        <h2 className="text-xl font-bold text-center text-black">Giriş Yap</h2>
 
-  ...prefix("concerts", [
-    index("./concerts/home.tsx"),
-    route(":city", "./concerts/city.tsx"),
-    route("trending", "./concerts/trending.tsx"),
-  ]),
-]*/
+        <input
+          name="username"
+          type="text"
+          placeholder="Kullanıcı Adı"
+          className="input input-bordered w-full text-gray-700"
+          value={form.username}
+          onChange={handleChange}
+        />
+        <input
+          name="password"
+          type="password"
+          placeholder="Şifre"
+          className="input input-bordered w-full text-gray-700"
+          value={form.password}
+          onChange={handleChange}
+        />
 
-/*[
-  // parent route
-  route("dashboard", "./dashboard.tsx", [
-    // child routes
-    index("./home.tsx"),
-    route("settings", "./settings.tsx"),
-  ]),
-]*/
+        <button type="submit" className="btn btn-primary w-full text-black">
+          Giriş Yap
+        </button>
+      </form>
+    </div>
+  );
+}

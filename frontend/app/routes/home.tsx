@@ -1,7 +1,7 @@
 import type { Route } from "./+types/home";
 import { Welcome } from "../welcome/welcome";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 
 import Input from "../components/common/Input";
@@ -15,19 +15,58 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  //return <Welcome />;
   const [roomCode, setRoomCode] = useState("");
   const navigate = useNavigate();
+
+	useEffect(() => {
+		const roomCode = localStorage.getItem("roomCode");
+	}, []);
+
+	let isLoggedIn = false;
+
+	const handleRoomCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = e.target.value.toUpperCase().slice(0, 6).replace(/[^A-Z0-9]/g, "");
+		setRoomCode(value);
+	};
 
   const handleJoin = () => (roomCode.length == 6 ? navigate(`/room/${roomCode}`) : alert("Room ID must be 6 characters long"));
   const handleCreateQuiz = () => alert("Create Quiz functionality is not implemented yet");
 
 return (
-	<div style={{ padding: "20px", textAlign: "center" }}>
-		<h1>Quiz App</h1>
-		<Input value={roomCode} onChange={(e) => setRoomCode(e.target.value.toUpperCase().slice(0,6))} placeholder="Room ID"></Input>
-		<Button onClick={handleJoin} disabled={roomCode.length != 6}>Katıl</Button>
-		{!roomCode && <Button onClick={handleCreateQuiz}>Quiz Oluştur</Button>}
-	</div>
-);
+    <div className="max-w-md mx-auto bg-white p-8 rounded shadow-md space-y-6">
+      <h1 className="text-2xl font-bold text-center mb-4 text-black">Odaya Katıl</h1>
+      <input
+        type="text"
+        placeholder="6 Haneli Oda ID"
+        value={roomCode}
+        onChange={handleRoomCodeChange}
+        className="input input-bordered w-full text-center text-xl tracking-widest uppercase text-black"
+        maxLength={6}
+        autoComplete="off"
+      />
+      <button
+        type="button"
+        onClick={handleJoin}
+        disabled={roomCode.length !== 6}
+        className={`btn btn-primary w-full text-black ${
+          roomCode.length !== 6 ? "opacity-50 cursor-not-allowed" : ""
+        }`}
+      >
+        Odaya Katıl
+      </button>
+      {isLoggedIn ? (
+        <button
+          type="button"
+          onClick={handleCreateQuiz}
+          className="btn btn-secondary w-full mt-4 text-black"
+        >
+          Oda Oluştur
+        </button>
+      ) : (
+        <p className="text-center text-gray-500 mt-4 text-black">
+          Oda oluşturmak için lütfen <a href="/auth/login" className="text-indigo-600 underline">giriş yapın</a>.
+        </p>
+      )}
+    </div>
+  );
 };
