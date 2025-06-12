@@ -6,24 +6,43 @@ const Question = require("./Question");
 const Participant = require("./Participant");
 const QuizHistory = require("./QuizHistory");
 
-User.hasMany(Room);
+User.hasMany(Room, {
+	foreignKey: "hostId",
+	as: "hostedRooms",
+});
 Room.belongsTo(User, {
-  foreignKey: {
-    allowNull: true,
-  },
+  foreignKey: "hostId",
 });
 
-Room.hasMany(Question);
-Question.belongsTo(Room);
+Room.hasMany(Question, {
+	foreignKey: "roomId",
+	as: "questions",
+	onDelete: "CASCADE",
+});
+Question.belongsTo(Room, {
+	foreignKey: "roomId",
+});
 
-Room.hasMany(Participant);
-Participant.belongsTo(Room);
+Room.hasMany(Participant, {
+	foreignKey: "roomId",
+	as: "participants",
+	onDelete: "CASCADE",
+});
+Participant.belongsTo(Room, {
+	foreignKey: "roomId",
+});
 
-User.hasMany(QuizHistory, { onDelete: "CASCADE" });
+User.hasMany(QuizHistory, {
+	foreignKey: "userId",
+	as: "quizHistory",
+	onDelete: "CASCADE",
+});
 QuizHistory.belongsTo(User, {
-  foreignKey: {
-    allowNull: false,
-  },
+  foreignKey: "userId",
+});
+QuizHistory.belongsTo(Room, {
+	foreignKey: "roomId",
+	onDelete: "SET NULL",
 });
 
 module.exports = {
@@ -32,4 +51,5 @@ module.exports = {
   Room,
   Question,
   Participant,
+	QuizHistory,
 };

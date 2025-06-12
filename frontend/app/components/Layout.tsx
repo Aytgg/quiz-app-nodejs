@@ -1,14 +1,28 @@
 import React from 'react';
-import { Link, useLocation, Outlet } from 'react-router';
+import { Link, useNavigate, Outlet } from 'react-router';
+import useAuth from '../hooks/useAuth';
 
 function Header() {
-  const location = useLocation();
+	const { username, isLoggedIn } = useAuth();
+  const navigate = useNavigate();
 
-  const links = [
-    { to: '/', label: 'Home' },
-    { to: '/login', label: 'Giriş Yap' },
-    { to: '/register', label: 'Kayıt Ol' },
-  ];
+	const handleLogout = () => {
+		localStorage.removeItem('token');
+		navigate('/');
+	};
+
+  const links = isLoggedIn ?
+		[
+			{ to: '/', label: 'Ana Sayfa' },
+			{ to: '/quiz-create', label: 'Quiz Oluştur' },
+			{ to: '/quizzes', label: 'Quizler' },
+			{ to: '/profile', label: username || 'Profilim' },
+		] :
+		[
+			{ to: '/', label: 'Ana Sayfa' },
+			{ to: '/login', label: 'Giriş Yap' },
+			{ to: '/register', label: 'Kayıt Ol' }
+		];
 
   return (
     <header className="bg-gradient-to-r from-indigo-700 to-indigo-900 text-white shadow-md sticky top-0 z-50">
@@ -21,9 +35,7 @@ function Header() {
             <li key={to}>
               <Link
                 to={to}
-                className={`hover:text-indigo-300 transition ${
-                  location.pathname === to ? 'underline underline-offset-4' : ''
-                }`}
+                className={`hover:text-indigo-300 transition`}
               >
                 {label}
               </Link>

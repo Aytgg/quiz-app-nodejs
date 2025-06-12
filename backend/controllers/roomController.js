@@ -1,7 +1,7 @@
 const { Room } = require("../models");
 const generateRoomCode = require("../utils/generateRoomCode");
 
-exports.createRoom = async (req, res) => {
+exports.create = async (req, res) => {
   try {
     const code = generateRoomCode();
 

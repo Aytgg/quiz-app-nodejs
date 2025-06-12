@@ -16,6 +16,14 @@ const Question = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+	timeLimit: {
+      type: DataTypes.INTEGER,
+      defaultValue: 30,
+    },
+	order: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     timestamps: true,

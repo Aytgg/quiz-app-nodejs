@@ -7,6 +7,7 @@ require("dotenv").config();
 
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./routes/roomRoutes");
+const quizRoutes = require("./routes/quizRoutes");
 const quizHistoryRoutes = require("./routes/quizHistoryRoutes");
 
 const initializeSocket = require("./socket");
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
+app.use("/api/quiz", quizRoutes);
 app.use("/api/quiz-history", quizHistoryRoutes);
 
 const server = http.createServer(app);
@@ -32,38 +34,6 @@ sequelize.sync({ alter: true }).then(() => {
   server.listen(process.env.PORT, () => {
     console.log("Server is running on port: " + process.env.PORT);
   });
-});
-
-// Homepage route
-app.get("/", (req, res) => {
-  res.send(`
-	<a href="/login"> Login </a>
-	<br>
-	<a href="/register"> Register </a>`);
-});
-
-// Login route GET
-app.get("/login", (req, res) => {
-  return res.redirect("localhost:3000/login");
-});
-
-// Register route GET
-app.get("/register", (req, res) => {
-  return redirect("localhost:3000/register");
-});
-
-// Profile route GET
-app.get(
-  "/profile",
-  /*checkAuth,*/ (req, res) => {
-    res.send(`<a href="/logout"> Logout </a>`);
-  },
-);
-
-// Logout route DELETE
-app.delete("/logout", (req, res) => {
-  req.logOut(); // Only on session usages !!!
-  res.redirect("/");
 });
 
 // 404 Middleware

@@ -12,6 +12,10 @@ const Participant = sequelize.define(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
+	correctAnswers: {
+		type: DataTypes.INTEGER,
+		defaultValue: 0,
+	}
   },
   {
     timestamps: true,

@@ -4,13 +4,12 @@ import { Welcome } from "../welcome/welcome";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 
-import Input from "../components/common/Input";
-import Button from "../components/common/Button";
+import useAuth from "../hooks/useAuth";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "Quiz App" },
+    { name: "description", content: "Quiz App via NodeJS" },
   ];
 }
 
@@ -22,7 +21,7 @@ export default function Home() {
 		const roomCode = localStorage.getItem("roomCode");
 	}, []);
 
-	let isLoggedIn = false;
+	const { isLoggedIn } = useAuth();
 
 	const handleRoomCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value.toUpperCase().slice(0, 6).replace(/[^A-Z0-9]/g, "");
@@ -30,7 +29,7 @@ export default function Home() {
 	};
 
   const handleJoin = () => (roomCode.length == 6 ? navigate(`/room/${roomCode}`) : alert("Room ID must be 6 characters long"));
-  const handleCreateQuiz = () => alert("Create Quiz functionality is not implemented yet");
+  const handleCreateQuiz = () => navigate('/rooms/create');
 
 return (
     <div className="max-w-md mx-auto bg-white p-8 rounded shadow-md space-y-6">
