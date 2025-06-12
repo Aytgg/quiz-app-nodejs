@@ -1,20 +1,34 @@
 import {
   type RouteConfig,
   index,
-  layout,
   route,
-  /*layout,*/
-  /*prefix,*/
+  layout,
+  prefix,
 } from "@react-router/dev/routes";
 
-export default [
-  layout("components/Layout.tsx", [
-	index("routes/home.tsx"),
-	route("login", "routes/auth/login.tsx"),
-	route("register", "routes/auth/register.tsx"),
-  ]),
-  // route("room/:roomId", "routes/waiting-in-room.tsx"),
-] satisfies RouteConfig;
+export default (
+  [
+    layout("components/Layout.tsx", [
+      index("routes/home.tsx"),
+
+      route("login", "routes/auth/login.tsx"),
+      route("register", "routes/auth/register.tsx"),
+
+      ...prefix("quiz", [
+        index("routes/quiz/list.tsx"),
+
+        route("create", "routes/quiz/create.tsx"),
+        route(":quizId", "routes/quiz/detail.tsx"),
+      ]),
+      ...prefix("room", [
+        route(":code", "routes/room/lobby.tsx"),
+        route(":code/question/:questionId", "routes/room/question.tsx"),
+        route(":code/result", "routes/room/result.tsx"),
+      ]),
+      // route("room/:roomId", "routes/waiting-in-room.tsx"),
+    ])
+  ] satisfies RouteConfig
+);
 
 /*[
   index("./home.tsx"),

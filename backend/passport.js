@@ -10,7 +10,7 @@ passport.use(
       let user = await User.findOne({ where: { username } });
       if (!user) return done(null, false, { message: "Kullanıcı bulunamadı" });
 
-      if (await bcrypt.compare(password, user.password))
+      if (!await bcrypt.compare(password, user.password))
         return done(null, false, { message: "Hatalı şifre" });
 
       return done(null, user);

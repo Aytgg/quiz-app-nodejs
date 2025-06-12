@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import api from '../../services/api';
+import api from '~/services/api';
+import { useAuth } from '~/contexts/AuthContext';
 
 export default function Login() {
   const [form, setForm] = useState({ username: '', password: '' });
   const navigate = useNavigate();
+
+  const { setAuth } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,6 +19,12 @@ export default function Login() {
       const res = await api.post('/auth/login', form);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('username', res.data.username);
+      setAuth({
+        token: res.data.token,
+        username: res.data.username,
+        userId: res.data.userId || null,
+        isLoggedIn: true,
+      });
       navigate('/');
     } catch (err: any) {
       alert(err.response?.data?.error || 'Giriş başarısız');

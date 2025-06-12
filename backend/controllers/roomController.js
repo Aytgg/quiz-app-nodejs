@@ -17,3 +17,19 @@ exports.create = async (req, res) => {
     res.status(500).json({ message: "Oda oluşturulamadı" });
   }
 };
+
+exports.check = async (req, res) => {
+  const { roomCode } = req.body;
+
+  try {
+    const room = await Room.findOne({ where: { code: roomCode, status: "waiting" } });
+
+    if (!room)
+      return res.status(404).json({ message: "Oda bulunamadı" });
+
+    res.json({ roomId: room.id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Oda kontrol edilemedi" });
+  }
+};

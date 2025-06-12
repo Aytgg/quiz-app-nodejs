@@ -1,10 +1,12 @@
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
-
+import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 
-import useAuth from "../hooks/useAuth";
+import { useAuth } from '~/contexts/AuthContext';
+import socket from "~/services/socket";
+import api from "~/services/api";
+import { W } from "node_modules/react-router/dist/development/lib-C1JSsICm.mjs";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -15,6 +17,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const [roomCode, setRoomCode] = useState("");
+	const [username, setUsername] = useState("");
   const navigate = useNavigate();
 
 	useEffect(() => {
@@ -28,12 +31,48 @@ export default function Home() {
 		setRoomCode(value);
 	};
 
-  const handleJoin = () => (roomCode.length == 6 ? navigate(`/room/${roomCode}`) : alert("Room ID must be 6 characters long"));
-  const handleCreateQuiz = () => navigate('/rooms/create');
+	const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = e.target.value.slice(0, 20);
+		setUsername(value);
+	};
 
-return (
+	const handleJoin = async () => {
+    if (roomCode.length != 6)
+      return alert("Oda ID 6 karakter uzunluğunda olmalıdır");
+
+    try {
+      const res = await api.post("/room/check", { roomCode });
+
+      navigate(`/room/${roomCode}`);
+    } catch (err: any) {
+      if (err.response?.status == 404 || err.response?.status == 500)
+        return alert(err.response?.data?.message || "Oda bulunamadı");
+
+      console.error("Error checking room code:", err);
+      return alert("Oda kontrol edilirken bir hata oluştu");
+    }
+
+    socket.emit("user-joined", { username: username || "Guest", roomCode });
+  }
+
+	const handleCreateQuiz = () => {
+		socket.emit("user-joined", { username: username || "Guest" });
+
+		navigate('/rooms/create');
+	}
+
+	return (
     <div className="max-w-md mx-auto bg-white p-8 rounded shadow-md space-y-6">
       <h1 className="text-2xl font-bold text-center mb-4 text-black">Odaya Katıl</h1>
+      <input
+        type="text"
+        placeholder="Kullanıcı Adı"
+        value={username}
+        onChange={handleUsernameChange}
+        className="input input-bordered w-full text-center text-xl tracking-widest text-black"
+        maxLength={20}
+        autoComplete="off"
+      />
       <input
         type="text"
         placeholder="6 Haneli Oda ID"

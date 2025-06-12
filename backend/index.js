@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
-app.use("/api/rooms", roomRoutes);
+app.use("/api/room", roomRoutes);
 app.use("/api/quiz", quizRoutes);
 app.use("/api/quiz-history", quizHistoryRoutes);
 
