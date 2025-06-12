@@ -15,7 +15,6 @@ exports.isNoAuth = (req, res, next) => {
     if (err) return res.status(500).json({ message: "Sunucu hatası" });
     if (user) return res.status(403).json({ message: "Zaten giriş yapılmış" });
 
-    console.log("LOGGED IN!");
     next();
   })(req, res, next);
 };

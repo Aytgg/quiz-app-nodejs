@@ -22,9 +22,7 @@ exports.register = async (req, res) => {
         .status(400)
         .json({ message: "Bu kullanıcı adı veya e-posta zaten kullanımda" });
 
-    const hashedPw = await bcrypt.hash(password, process.env.HASH_SALTROUNDS);
-
-    const newUser = await User.create({ username, email, password: hashedPw });
+    const newUser = await User.create({ username, email, password });
 
     const token = jwt.sign(
       { sub: newUser.id, username: newUser.username },
@@ -41,8 +39,9 @@ exports.register = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   passport.authenticate("local", { session: false }, (err, user, info) => {
+	console.log(err)
     if (err) return res.status(500).json({ error: "Sunucu hatası" });
     if (!user)
       return res
@@ -56,6 +55,6 @@ exports.login = async (req, res) => {
         expiresIn: "1h",
       },
     );
-    res.json({ token, username });
+    res.json({ token, username: user.username });
   })(req, res, next);
 };

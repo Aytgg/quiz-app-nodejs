@@ -12,10 +12,10 @@ const quizHistoryRoutes = require("./routes/quizHistoryRoutes");
 const initializeSocket = require("./socket");
 
 const app = express();
-//app.use(cors({ origin: "https://localhost:3000" }));
-//app.use(require("passport").initialize());
-//app.use(express.json());
-//app.use(express.urlencoded({ extended: true }));
+app.use(cors({ origin: "*" }));
+app.use(require("./passport").initialize());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
