@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext<any>(null);
@@ -7,11 +7,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [auth, setAuth] = useState({
     token: null as string | null,
     username: null as string | null,
-    userId: null as number | null,
+    userId: null as string | number | null,
     isLoggedIn: false,
   });
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const token = localStorage.getItem("token");
     const username = localStorage.getItem("username");
     if (!token) return;

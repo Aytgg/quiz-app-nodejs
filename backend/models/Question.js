@@ -16,11 +16,11 @@ const Question = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-	timeLimit: {
+    timeLimit: {
       type: DataTypes.INTEGER,
       defaultValue: 30,
     },
-	order: {
+    order: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

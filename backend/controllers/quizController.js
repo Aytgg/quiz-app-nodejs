@@ -1,20 +1,24 @@
 const { Quiz, Question, User } = require('../models');
 
 exports.create = async (req, res) => {
-  const { title, questions } = req.body;
+  const { title, description, questions } = req.body;
   const userId = req.user.id;
 
   try {
-    const quiz = await Quiz.create({ title, userId }, { include: [Question] });
-
-		questions.forEach(async (q) => {
-      await Question.create({
-        quizId: quiz.id,
-        text: q.text,
-        options: q.options,
-        correctOption: q.correctOption
-      });
-    });
+    const quiz = await Quiz.create(
+      {
+        title,
+        description: description || null,
+        userId,
+        questions
+      },
+      {
+        include: [{
+          model: Question,
+          as: 'questions'
+        }]
+      }
+    );
 
     res.status(201).json({ message: 'Quiz oluşturuldu', quizId: quiz.id });
   } catch (err) {
@@ -29,11 +33,13 @@ exports.list = async (req, res) => {
       include: [
         {
           model: User,
+          as: 'creator',
           attributes: ['username']
         },
         {
           model: Question,
-          attributes: ['id']
+          as: 'questions',
+          attributes: ['id',]
         }
       ],
       order: [['createdAt', 'DESC']]
@@ -42,13 +48,16 @@ exports.list = async (req, res) => {
     const result = quizzes.map((quiz) => ({
       id: quiz.id,
       title: quiz.title,
-      creator: quiz.User.username,
-      questionCount: quiz.Questions.length
+      description: quiz.description || null,
+      creator: quiz.creator.username,
+      questionCount: quiz.questions.length
     }));
+
+    if (result.length == 0)
+      return res.status(404).json({ message: 'Quiz bulunamadı' });
 
     res.json(result);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'Quiz listesi alınamadı' });
   }
 };

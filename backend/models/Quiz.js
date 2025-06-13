@@ -18,4 +18,4 @@ const Quiz = sequelize.define(
   },
 );
 
-module.exports = Question;
+module.exports = Quiz;

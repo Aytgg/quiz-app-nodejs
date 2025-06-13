@@ -15,8 +15,7 @@ export default (
       route("register", "routes/auth/register.tsx"),
 
       ...prefix("quiz", [
-        index("routes/quiz/list.tsx"),
-
+        route("list", "routes/quiz/list.tsx"),
         route("create", "routes/quiz/create.tsx"),
         route(":quizId", "routes/quiz/detail.tsx"),
       ]),

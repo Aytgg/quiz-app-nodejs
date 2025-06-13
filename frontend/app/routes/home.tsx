@@ -6,7 +6,6 @@ import { useNavigate } from "react-router";
 import { useAuth } from '~/contexts/AuthContext';
 import socket from "~/services/socket";
 import api from "~/services/api";
-import { W } from "node_modules/react-router/dist/development/lib-C1JSsICm.mjs";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -43,6 +42,8 @@ export default function Home() {
     try {
       const res = await api.post("/room/check", { roomCode });
 
+      localStorage.setItem("username", username || "Guest");
+      // socket.emit("join-room", { roomCode, username: username || "Guest" });
       navigate(`/room/${roomCode}`);
     } catch (err: any) {
       if (err.response?.status == 404 || err.response?.status == 500)
@@ -51,15 +52,9 @@ export default function Home() {
       console.error("Error checking room code:", err);
       return alert("Oda kontrol edilirken bir hata oluştu");
     }
-
-    socket.emit("user-joined", { username: username || "Guest", roomCode });
   }
 
-	const handleCreateQuiz = () => {
-		socket.emit("user-joined", { username: username || "Guest" });
-
-		navigate('/rooms/create');
-	}
+	const handleCreateQuiz = () => navigate('/room/create');
 
 	return (
     <div className="max-w-md mx-auto bg-white p-8 rounded shadow-md space-y-6">

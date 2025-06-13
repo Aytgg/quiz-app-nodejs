@@ -9,6 +9,10 @@ const Room = sequelize.define(
       allowNull: false,
       unique: true,
     },
+    title: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
     status: {
       type: DataTypes.ENUM("waiting", "in-progress", "finished"),
       defaultValue: "waiting",

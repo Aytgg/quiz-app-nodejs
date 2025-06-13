@@ -14,8 +14,8 @@ function Header() {
   const links = isLoggedIn ?
 		[
 			{ to: '/', label: 'Ana Sayfa' },
-			{ to: '/quiz-create', label: 'Quiz Oluştur' },
-			{ to: '/quizzes', label: 'Quizler' },
+			{ to: '/quiz/create', label: 'Quiz Oluştur' },
+			{ to: '/quiz/list', label: 'Quizler' },
 			{ to: '/profile', label: username || 'Profilim' },
 			{ to: '/', label: 'Çıkış', onClick: handleLogout }
 		] :
@@ -33,7 +33,7 @@ function Header() {
         </Link>
           <ul className="flex space-x-8">
             {links.map(({ to, label, onClick }) => (
-              <li key={to}>
+              <li key={`${to}-${label}`}>
                 {onClick ? (
                   <button
                     onClick={onClick}

@@ -1,98 +1,108 @@
 const { Room, Participant, Question, QuizHistory } = require("./models");
 
-module.exports = io => {
-	io.on("connection", (socket) => {
-	console.log("New connection:", socket.id);
+const rooms = {};
 
-	socket.on("join-room", ({ roomCode, username }) => {
-		socket.join(roomCode);
-		console.log(username, roomCode, "odasına katıldı.");
+module.exports = (io) => {
+  io.on("connection", (socket) => {
+    console.log("New connection:", socket.id);
 
-		socket.to(roomCode).emit("user-joined", { username });
-	});
-	socket.on(
-		"submit-answer",
-		async ({ roomCode, username, selectedOption, correctOption }) => {
-		let isCorrect = selectedOption == correctOption;
-		let room = await Room.findOne({ where: { code: roomCode } });
-		if (!room) return;
+    socket.on("join-room", ({ roomCode, username }) => {
+      socket.join(roomCode);
+      if (!rooms[roomCode]) rooms[roomCode] = [];
+      if (!rooms[roomCode].includes(username)) rooms[roomCode].push(username);
 
-		let participant = await Participant.findOne({
-			where: { roomId: room.id, username },
-		});
+      socket.roomCode = roomCode;
+      socket.username = username;
+      io.to(roomCode).emit("user-list", { users: rooms[roomCode] });
+    });
+    socket.on(
+      "submit-answer",
+      async ({ roomCode, username, selectedOption, correctOption }) => {
+        let isCorrect = selectedOption == correctOption;
+        let room = await Room.findOne({ where: { code: roomCode } });
+        if (!room) return;
 
-		if (isCorrect && participant) {
-			participant.score += 100;
-			await participant.save();
-		}
+        let participant = await Participant.findOne({
+          where: { roomId: room.id, username },
+        });
 
-		io.to(roomCode).emit("answer-result", {
-			username,
-			correct: isCorrect,
-		});
-		},
-	);
-	socket.on("request-scoreboard", async ({ roomCode }) => {
-		let room = await Room.findOne({ where: { code: roomCode } });
-		if (!room) return;
+        if (isCorrect && participant) {
+          participant.score += 100;
+          await participant.save();
+        }
 
-		let participants = await Participant.findAll({
-		where: { roomId: room.id },
-		order: [["score", "DESC"]],
-		});
+        io.to(roomCode).emit("answer-result", {
+          username,
+          correct: isCorrect,
+        });
+      }
+    );
+    socket.on("request-scoreboard", async ({ roomCode }) => {
+      let room = await Room.findOne({ where: { code: roomCode } });
+      if (!room) return;
 
-		let scoreboard = participants.map((p) => ({
-		username: p.username,
-		score: p.score,
-		}));
+      let participants = await Participant.findAll({
+        where: { roomId: room.id },
+        order: [["score", "DESC"]],
+      });
 
-		io.to(roomCode).emit("scoreboard", scoreboard);
-	});
-	socket.on("next-question", ({ roomCode, question }) => {
-		io.to(roomCode).emit("new-question", question);
+      let scoreboard = participants.map((p) => ({
+        username: p.username,
+        score: p.score,
+      }));
 
-		let timer = 20;
-		let interval = setInterval(() => {
-		timer--;
-		io.to(roomCode).emit("timer", timer);
+      io.to(roomCode).emit("scoreboard", scoreboard);
+    });
+    socket.on("next-question", ({ roomCode, question }) => {
+      io.to(roomCode).emit("new-question", question);
 
-		if (timer < 1) {
-			clearInterval(interval);
-			io.to(roomCode).emit("question-ended");
-		}
-		}, 1000);
-	});
-	socket.on("end-game", async ({ roomCode }) => {
-		let room = await Room.findOne({ where: { code: roomCode } });
-		if (!room) return;
+      let timer = 20;
+      let interval = setInterval(() => {
+        timer--;
+        io.to(roomCode).emit("timer", timer);
 
-		room.status = "finished";
-		await room.save();
+        if (timer < 1) {
+          clearInterval(interval);
+          io.to(roomCode).emit("question-ended");
+        }
+      }, 1000);
+    });
+    socket.on("end-game", async ({ roomCode }) => {
+      let room = await Room.findOne({ where: { code: roomCode } });
+      if (!room) return;
 
-		let participants = await Participants.findAll({
-		where: { roomId: room.id },
-		order: [["score", "DESC"]],
-		});
+      room.status = "finished";
+      await room.save();
 
-		let results = participants.map((p) => ({
-		username: p.username,
-		score: p.score,
-		}));
+      let participants = await Participants.findAll({
+        where: { roomId: room.id },
+        order: [["score", "DESC"]],
+      });
 
-		let totalQuestions = await Question.count({
-		where: { roomId: room.id },
-		});
+      let results = participants.map((p) => ({
+        username: p.username,
+        score: p.score,
+      }));
 
-		await QuizHistory.create({
-		userId: room.userId,
-		totalQuestions,
-		results,
-		});
+      let totalQuestions = await Question.count({
+        where: { roomId: room.id },
+      });
 
-		io.to(roomCode).emit("game-ended", results);
-	});
-	socket.on("disconnect", () => {
-		console.log("Disconnected", socket.id);
-	});
-	});
-}
+      await QuizHistory.create({
+        userId: room.userId,
+        totalQuestions,
+        results,
+      });
+
+      io.to(roomCode).emit("game-ended", results);
+    });
+    socket.on("disconnect", () => {
+      const { roomCode, username } = socket;
+      if (roomCode && username && rooms[roomCode])
+        io.to(roomCode).emit("user-list", {
+          users: rooms[roomCode].filter((user) => user != username),
+        });
+      console.log("Disconnected", socket.id);
+    });
+  });
+};

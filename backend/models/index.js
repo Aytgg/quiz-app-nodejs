@@ -2,6 +2,7 @@ const sequelize = require("../db");
 
 const User = require("./User");
 const Room = require("./Room");
+const Quiz = require("./Quiz");
 const Question = require("./Question");
 const Participant = require("./Participant");
 const QuizHistory = require("./QuizHistory");
@@ -12,15 +13,39 @@ User.hasMany(Room, {
 });
 Room.belongsTo(User, {
   foreignKey: "hostId",
+  as: "host",
 });
 
-Room.hasMany(Question, {
-	foreignKey: "roomId",
+User.hasMany(Quiz, {
+	foreignKey: "userId",
+	as: "quizzes",
+	onDelete: "CASCADE",
+});
+Quiz.belongsTo(User, {
+	foreignKey: "userId",
+	as: "creator",
+	onDelete: "CASCADE",
+});
+
+Quiz.hasMany(Room, {
+	foreignKey: "quizId",
+	as: "rooms",
+	onDelete: "SET NULL",
+});
+Room.belongsTo(Quiz, {
+	foreignKey: "quizId",
+	as: "quiz",
+	onDelete: "SET NULL",
+});
+
+Quiz.hasMany(Question, {
+	foreignKey: "quizId",
 	as: "questions",
 	onDelete: "CASCADE",
 });
-Question.belongsTo(Room, {
-	foreignKey: "roomId",
+Question.belongsTo(Quiz, {
+	foreignKey: "quizId",
+	as: "quiz",
 });
 
 Room.hasMany(Participant, {
@@ -49,7 +74,8 @@ module.exports = {
   sequelize,
   User,
   Room,
+  Quiz,
   Question,
   Participant,
-	QuizHistory,
+  QuizHistory,
 };

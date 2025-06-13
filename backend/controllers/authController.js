@@ -40,7 +40,6 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res, next) => {
   passport.authenticate("local", { session: false }, (err, user, info) => {
-	console.log(err)
     if (err) return res.status(500).json({ error: "Sunucu hatası" });
     if (!user)
       return res
