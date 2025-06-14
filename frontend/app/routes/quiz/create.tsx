@@ -91,9 +91,18 @@ export default function QuizCreate() {
         return alert("Tüm şıklar doldurulmalıdır.");
     }
     try {
-      await api.post("/quiz/create", { title, description, questions });
+      await api
+        .post("/quiz/create", { title, description, questions })
+        .catch((err: any) => {
+          if (err.response?.status == 401) {
+            alert("Lütfen giriş yapın");
+            return navigate("/login");
+          } else if (err.response?.status != 400)
+            return alert("Quiz oluşturulamadı");
+        });
       alert("Quiz başarıyla oluşturuldu!");
       navigate("/quiz/list");
+
     } catch (err: any) {
       alert(err.response?.data?.message || "Quiz oluşturulamadı");
     }

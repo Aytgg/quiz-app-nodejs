@@ -76,7 +76,7 @@ export default function QuestionPage() {
     if (!isLast)
       navigate(`/room/${code}/question?q=${order + 1}`);
     else {
-      socket.emit("end-quiz", { code });
+      socket.emit("end-quiz", { code, username: localStorage.getItem("username") || "Guest" });
       navigate(`/room/${code}/scoreboard`);
     }
   }

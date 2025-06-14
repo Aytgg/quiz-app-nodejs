@@ -128,6 +128,8 @@ module.exports = (io) => {
       let room = await Room.findOne({ where: { code } });
       if (!room) return;
 
+      if (room.status == "finished") return;
+      
       room.status = "finished";
       await room.save();
 
@@ -136,30 +138,42 @@ module.exports = (io) => {
         order: [["score", "DESC"]],
       });
 
-      let results = participants.map((p) => ({
-        username: p.username,
-        score: p.score,
-      }));
-
       let totalQuestions = await Question.count({
         where: { quizId: room.quizId },
       });
 
-      await QuizHistory.create({
-        userId: room.userId,
+      var qh = await QuizHistory.create({
+        userId: room.hostId,
+        roomId: room.id,
+        results: participants.map((p) => ({
+          username: p.username,
+          score: p.score,
+          correctAnswers: p.correctAnswers,
+        })),
         totalQuestions,
-        results,
       });
+      const relatedRoom = await qh.getRoom();
+      const relatedQuiz = await relatedRoom.getQuiz();
+      const relatedQuestionCount = await relatedQuiz.countQuestions();
+      const relatedParticipants = await relatedRoom.getParticipants();
 
-      io.to(code).emit("game-ended", results);
+      io.to(code).emit("game-ended", {
+        participants,
+        quizTitle: relatedQuiz.title,
+        totalQuestions: relatedQuestionCount,
+        participants: relatedParticipants,
+      });
     });
     socket.on("disconnect", () => {
       const { roomCode, username } = socket;
+      // User left the room
       if (roomCode && username && rooms[roomCode])
         io.to(roomCode).emit("user-list", {
           users: rooms[roomCode].filter((user) => user != username),
         });
-      console.log("Disconnected", socket.id);
+      // Delete room if nobody left
+      if (roomCode && rooms[roomCode] && rooms[roomCode].length == 0)
+        delete rooms[roomCode];
     });
   });
 };

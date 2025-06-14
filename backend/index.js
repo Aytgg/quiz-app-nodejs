@@ -8,7 +8,6 @@ require("dotenv").config();
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const quizRoutes = require("./routes/quizRoutes");
-const quizHistoryRoutes = require("./routes/quizHistoryRoutes");
 
 const initializeSocket = require("./socket");
 
@@ -21,7 +20,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/room", roomRoutes);
 app.use("/api/quiz", quizRoutes);
-app.use("/api/quiz-history", quizHistoryRoutes);
 
 const server = http.createServer(app);
 const io = new Server(server, {

@@ -1,4 +1,4 @@
-const { Quiz, Question, User } = require('../models');
+const { Quiz, Room, Question, User, QuizHistory, Participant } = require('../models');
 
 exports.create = async (req, res) => {
   const { title, description, questions } = req.body;
@@ -112,4 +112,33 @@ exports.delete = async (req, res) => {
 		console.error(err);
 		res.status(500).json({ message: 'Quiz silinemedi' });
 	}
+};
+
+exports.history = async (req, res) => {
+  try {
+    const allHistory = await QuizHistory.findAll(
+    {
+      where: { userId: req.user.id },
+      order: [['playedAt', 'DESC']],
+      include: [
+        {
+          model: Room,
+          attributes: ['title'],
+        },
+      ]
+    });
+    const history = allHistory.map(h => {
+      return {
+        roomTitle: h.Room?.title || 'Oda',
+        playedAt: h.playedAt,
+        results: h.results,
+        totalQuestions: h.totalQuestions,
+      };
+    });
+
+    res.json({ history });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Geçmiş alınamadı' });
+  }
 };

@@ -16,7 +16,7 @@ function Header() {
 			{ to: '/', label: 'Ana Sayfa' },
 			{ to: '/quiz/create', label: 'Quiz Oluştur' },
 			{ to: '/quiz/list', label: 'Quizler' },
-			{ to: '/profile', label: username || 'Profilim' },
+			{ to: '/quiz/history', label: username || 'Profilim' },
 			{ to: '/', label: 'Çıkış', onClick: handleLogout }
 		] :
 		[

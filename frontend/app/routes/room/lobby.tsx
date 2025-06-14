@@ -36,12 +36,13 @@ export default function RoomPage() {
 
     checkIsOwner();
 
+    socket.on("quiz-started", () => navigate(`/room/${code}/question`));
+
     return () => {
       socket.off("user-list");
     };
   }, [username, code]);
 
-  socket.on("quiz-started", () => navigate(`/room/${code}/question`));;
   const handleStartQuiz = () => {
     socket.emit("start-quiz", { roomCode: code, users });
 

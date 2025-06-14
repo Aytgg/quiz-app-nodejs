@@ -9,11 +9,15 @@ const QuizHistory = sequelize.define(
 		},
 		results: {
 			type: DataTypes.JSON, // [{ username, score }]
-			allowNull: true,
+			allowNull: false,
+		},
+		totalQuestions: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
 		},
 	},
   {
-	timestamps: true,
+	timestamps: false,
   }
 );
 

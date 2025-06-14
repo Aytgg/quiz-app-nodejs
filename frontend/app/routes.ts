@@ -18,6 +18,7 @@ export default (
         route("list", "routes/quiz/list.tsx"),
         route("create", "routes/quiz/create.tsx"),
         route(":quizId", "routes/quiz/detail.tsx"),
+        route("history", "routes/quiz/history.tsx"),
       ]),
       ...prefix("room", [
         route(":code", "routes/room/lobby.tsx"),

@@ -6,5 +6,6 @@ const { isAuth } = require("../middlewares/authMiddleware");
 router.get("/list", isAuth, quizController.list);
 router.get("/:id", isAuth, quizController.detail);
 router.post("/create", isAuth, quizController.create);
+router.post("/history", isAuth, quizController.history);
 
 module.exports = router;
