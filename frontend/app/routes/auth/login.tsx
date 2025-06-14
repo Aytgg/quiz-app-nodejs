@@ -53,7 +53,7 @@ export default function Login() {
           onChange={handleChange}
         />
 
-        <button type="submit" className="btn btn-primary w-full text-black">
+        <button type="submit" className="btn btn-primary w-full text-black" tabIndex={0}>
           Giriş Yap
         </button>
       </form>

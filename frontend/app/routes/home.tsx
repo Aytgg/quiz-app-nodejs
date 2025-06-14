@@ -84,6 +84,7 @@ export default function Home() {
         className={`btn btn-primary w-full text-black ${
           roomCode.length !== 6 ? "opacity-50 cursor-not-allowed" : ""
         }`}
+        tabIndex={0}
       >
         Odaya Katıl
       </button>
