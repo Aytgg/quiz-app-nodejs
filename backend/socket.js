@@ -127,8 +127,11 @@ module.exports = (io) => {
     socket.on("end-quiz", async ({ code }) => {
       let room = await Room.findOne({ where: { code } });
       if (!room) return;
-
       if (room.status == "finished") return;
+      const isExist = await QuizHistory.findOne({
+        where: { roomId: room.id },
+      });
+      if (isExist) return;
       
       room.status = "finished";
       await room.save();
