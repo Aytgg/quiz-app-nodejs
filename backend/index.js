@@ -28,7 +28,7 @@ const io = new Server(server, {
 
 initializeSocket(io);
 
-sequelize.sync({ force: true }).then(() => {
+sequelize.sync({ alter: true }).then(() => {
   server.listen(process.env.PORT, () => {
     console.log("Server is running on port: " + process.env.PORT);
   });
