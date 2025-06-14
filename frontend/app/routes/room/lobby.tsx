@@ -10,12 +10,14 @@ export default function RoomPage() {
   const [users, setUsers] = useState<string[]>([]);
   const auth = useAuth();
   const [username] = useState<string>(auth.username || localStorage.getItem("username") || "Guest");
-  const [isOwner, setIsOwner] = useState<boolean>();
+  const [isOwner, setIsOwner] = useState<any>();
 
   const checkIsOwner = async () => {
     try {
       const res = await api.post("/room/check", { roomCode: code });
-      setIsOwner(res.data.hostId == auth.userId)
+      const hostId = res.data.hostId;
+      setIsOwner(String(hostId) == String(auth.userId));
+      setIsOwner(true);
     } catch (err: any) {
       if (err.response?.status == 404)
         return alert("Oda bulunamadı");
@@ -39,10 +41,11 @@ export default function RoomPage() {
     };
   }, [username, code]);
 
+  socket.on("quiz-started", () => navigate(`/room/${code}/question`));;
   const handleStartQuiz = () => {
-    socket.emit("start-quiz", { roomCode: code });
+    socket.emit("start-quiz", { roomCode: code, users });
 
-    navigate(`/room/${code}/quiz?q=1`);
+    navigate(`/room/${code}/question`);
   }
 
   return (
@@ -60,7 +63,7 @@ export default function RoomPage() {
           </button>
         </div>
       )}
-      <h3 className="text-lg font-semibold mt-4 text-black">Katılımcılar: </h3>
+      <h3 className="text-lg font-semibold mt-4 text-black">Katılımcılar: {JSON.stringify(users.length)}</h3>
       <ul className="list-disc list-inside">
         {users.map((u, i) => (
           <li key={`${u}-${i}`} className="text-gray-700">

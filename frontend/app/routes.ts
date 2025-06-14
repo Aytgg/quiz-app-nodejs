@@ -21,8 +21,8 @@ export default (
       ]),
       ...prefix("room", [
         route(":code", "routes/room/lobby.tsx"),
-        route(":code/question/:questionId", "routes/room/question.tsx"),
-        route(":code/result", "routes/room/result.tsx"),
+        route(":code/question", "routes/room/question.tsx"),
+        route(":code/scoreboard", "routes/room/scoreboard.tsx"),
       ]),
       // route("room/:roomId", "routes/waiting-in-room.tsx"),
     ])
